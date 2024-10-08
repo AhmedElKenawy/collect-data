@@ -1,4 +1,3 @@
-// Required packages
 const express = require("express");
 const { google } = require("googleapis");
 const bodyParser = require("body-parser");
@@ -10,7 +9,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public')); // Serve static files from 'public' directory
 
 // Google Sheets API setup
 const auth = new google.auth.GoogleAuth({
@@ -23,6 +22,7 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets = google.sheets({ version: "v4", auth });
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
+
 
 // POST endpoint to handle form submission
 app.post("/submit-form", async (req, res) => {
@@ -46,7 +46,7 @@ app.post("/submit-form", async (req, res) => {
     // Append values to the Google Sheet
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: "Sheet1!A:H", // Adjust range as needed
+      range: "Sheet1!A:H",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values,
@@ -59,6 +59,8 @@ app.post("/submit-form", async (req, res) => {
     res.status(500).json({ error: "Failed to submit form" });
   }
 });
+
+// GET endpoint to fetch data from the sheet
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
