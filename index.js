@@ -21,23 +21,21 @@ const auth = new google.auth.GoogleAuth({
 });
 
 const sheets = google.sheets({ version: "v4", auth });
-const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
+const DOWNTOWN_SPREADSHEET_ID = process.env.SPREADSHEET_ID;
+const ELETREBY_SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 
 
 // POST endpoint to handle form submission
 app.post("/submit-form", async (req, res) => {
   try {
-    const { name, email, phone, date, country, service, branch } = req.body;
+    const { name, phone, date, branch , customerId} = req.body;
 
     // Prepare the values to be inserted into the sheet
     const values = [
       [
         name,
-        email,
         phone,
         date,
-        country,
-        service,
         branch,
         new Date().toISOString().slice(0, 19).replace("T", " "), // Timestamp
       ],
@@ -45,7 +43,7 @@ app.post("/submit-form", async (req, res) => {
 
     // Append values to the Google Sheet
     const response = await sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
+      spreadsheetId: customerId == '2' ? DOWNTOWN_SPREADSHEET_ID: ELETREBY_SPREADSHEET_ID,
       range: "Sheet1!A:H",
       valueInputOption: "USER_ENTERED",
       requestBody: {
